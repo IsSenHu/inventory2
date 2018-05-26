@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/rabbit  http://www.springframework.org/schema/rabbit/spring-rabbit-2.0.xsd">
+
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="configProperties"/>
+    </bean>
+
+    <!-- 配置rabbitmq BEGIN -->
+    <!-- 配置ConnectionFactory，指定连接rabbit server的参数 -->
+    <rabbit:connection-factory id="rabbitConnectionFactory" virtual-host="${rabbitmq.virtualHost}"
+                               username="${rabbitmq.username}"
+                               password="${rabbitmq.password}"
+                               host="${rabbitmq.host}"
+                               port="${rabbitmq.port}"/>
+    <!-- 通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
+    <rabbit:admin id="rabbitAdmin" connection-factory="rabbitConnectionFactory"/>
+
+    <!-- 在 applicationContext.xml 中声明一个队列 -->
+    <rabbit:queue id="claItemStockQueue" name="${rabbitmq.calItemStock.queue}" declared-by="rabbitAdmin"/>
+    <rabbit:queue id="claItemStockOutQueue" name="${rabbitmq.calItemStockOut.queue}" declared-by="rabbitAdmin"/>
+    <rabbit:queue id="pushDelivedQueue" name="${rabbitmq.push.delived.queue}" declared-by="rabbitAdmin"/>
+    <!-- 在 applicationContext.xml 中声明一个交换机 -->
+    <rabbit:direct-exchange name="rabbitmqExchange" durable="true" auto-delete="false" declared-by="rabbitAdmin">
+        <rabbit:bindings>
+            <rabbit:binding queue="claItemStockQueue" key="${rabbitmq.claStock.key}"/>
+            <rabbit:binding queue="claItemStockOutQueue" key="${rabbitmq.claStockout.key}"/>
+            <rabbit:binding queue="pushDelivedQueue" key="${rabbitmq.push.delived.key}"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!-- 声明一个 RabbitMQ Template -->
+    <rabbit:template id="ampqTemplate" connection-factory="rabbitConnectionFactory" exchange="rabbitmqExchange"/>
+     <!--在 applicationContext.xml 中配置监听及消费者端-->
+
+     <!--消费者-->
+    <bean name="rabbitmqService" class="ecjtu.husen.rabbitmq.service.RabbitmqService"/>
+    <bean name="rabbitmqOutService" class="ecjtu.husen.rabbitmq.service.OutRabbitmqService"/>
+    <bean name="rabbitmqOrderService" class="ecjtu.husen.rabbitmq.service.OrderRabbitmqService"/>
+     <!--配置监听-->
+
+    <rabbit:listener-container connection-factory="rabbitConnectionFactory" acknowledge="auto">
+        <!--
+　　　　queues 监听队列，多个用逗号分隔
+　　　　ref 监听器
+　　    -->
+        <rabbit:listener queue-names="${rabbitmq.calItemStock.queue}" ref="rabbitmqService" method="onMessage"/>
+        <rabbit:listener queue-names="${rabbitmq.calItemStockOut.queue}" ref="rabbitmqOutService" method="onMessage"/>
+        <rabbit:listener queue-names="${rabbitmq.push.deliver.queue}" ref="rabbitmqOrderService" method="onMessage"/>
+    </rabbit:listener-container>
+    <!--END-->
+</beans>

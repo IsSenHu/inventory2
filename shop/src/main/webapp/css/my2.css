@@ -1,0 +1,88 @@
+/*#detail{*/
+    /*border: 1px solid cornflowerblue;*/
+    /*border-top: 26px solid cornflowerblue;*/
+    /*background-color: #FFFFFF;*/
+    /*position: absolute;*/
+    /*z-index: 200;*/
+    /*margin-left: 10%;*/
+/*}*/
+/*.good{*/
+    /*border: 1px solid cornflowerblue;*/
+    /*height: 226px;*/
+/*}*/
+#goodInfo{
+    width: 30%;
+    height: 286px;
+    border: 1px solid black;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 35%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}
+#desPic{
+    width: 30%;
+    height: 166px;
+    border: 1px solid black;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 35%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}
+#otherPics{
+    width: 50%;
+    /*height: 166px;*/
+    border: 1px solid black;
+    padding: 5px;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 25%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}
+#coupons{
+    width: 80%;
+    /*height: 166px;*/
+    border: 1px solid black;
+    padding: 5px;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 10%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}
+#promotions{
+    width: 70%;
+    /*height: 166px;*/
+    border: 1px solid black;
+    padding: 5px;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 10%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}
+#postage{
+    width: 50%;
+    /*height: 166px;*/
+    border: 1px solid black;
+    padding: 5px;
+    box-shadow: #1b6d85 2px 2px 2px;
+    position: absolute;
+    z-index: 2222;
+    left: 25%;
+    top: 126px;
+    background-color: snow;
+    display: none;
+}

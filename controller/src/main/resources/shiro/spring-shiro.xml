@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- 启用shiro授权注解拦截方式 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <!-- 装配securityManager -->
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 配置登录页面 -->
+        <property name="loginUrl" value="/toLogin.action"/>
+        <!-- 登录成功后的页面 -->
+        <property name="successUrl" value="/toIndex.action"/>
+        <!-- 配置没有权限的页面 -->
+        <property name="unauthorizedUrl" value="/403.jsp"/>
+        <!-- 具体配置需要拦截哪些URL，以及访问对应的URL时使用shiro的什么进行拦截 -->
+        <property name="filterChainDefinitionMap" ref="filterChainDefinitionMap"/>
+    </bean>
+
+    <!-- 配置一个Bean，该Bean实际上是一个Map，通过实例工厂的方式实现 -->
+    <bean id="filterChainDefinitionMap" factory-bean="filterChainDefinitionMapBuilder" factory-method="builderFilterChainDefinitionMap"/>
+    <bean id="filterChainDefinitionMapBuilder" class="ecjtu.husen.shiro.FilterChainDefinitionMapBuilder"/>
+
+    <!-- 配置缓存管理器 -->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <!-- 指定ehcache的配置文件 -->
+        <property name="cacheManagerConfigFile" value="classpath:shiro/ehcache.xml"/>
+    </bean>
+
+    <!-- 配置进行授权和认证的Realm -->
+    <bean id="inventoryRealm" class="ecjtu.husen.reamls.ShiroRealm">
+        <!-- 对密码进行MD5加密 -->
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="MD5"/>
+                <!-- 加密次数 -->
+                <property name="hashIterations" value="1024"/>
+            </bean>
+        </property>
+    </bean>
+
+    <!-- 配置authenticator -->
+    <bean id="authenticator" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+        <property name="realms">
+            <list>
+                <ref bean="inventoryRealm"/>
+            </list>
+        </property>
+        <property name="authenticationStrategy">
+            <!-- 所有reaml验证成功才可通过 -->
+            <bean class="org.apache.shiro.authc.pam.AllSuccessfulStrategy"/>
+        </property>
+    </bean>
+
+    <!-- 授权器 -->
+    <bean id="authorizer" class="org.apache.shiro.authz.ModularRealmAuthorizer">
+        <property name="realms">
+            <list>
+                <ref bean="inventoryRealm"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 配置securityManager -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="cacheManager" ref="cacheManager"/>
+        <property name="authenticator" ref="authenticator"/>
+        <property name="authorizer" ref="authorizer"/>
+        <property name="realm" ref="inventoryRealm"/>
+    </bean>
+
+</beans>
